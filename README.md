@@ -27,8 +27,13 @@ wikiuser=MissingBot
 password=YOUR PASSWORD
 ```
 
-## run
+Your need edit rights.
+
+## Run the bot
 ```sh
 $ java -jar missingBot-1.0.jar -help
 ```
 
+## License
+
+The source code is under the terms of the [GNU General Public License, version 2](http://www.gnu.org/licenses/gpl-2.0.html).
