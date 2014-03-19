@@ -10,7 +10,7 @@ $ cd missingBot
 $ mvn package
 ```
 
-The executable .jar is located in target/ directory.
+The executable .jar is located in the target/ directory.
 
 ## Configuration
 Go to the directory where your executable .jar is located.
@@ -21,7 +21,7 @@ Go to the directory where your executable .jar is located.
 wikihosturl=http://mappings.dbpedia.org/
 
 # your mediawiki account with edit rights
-wikiuser=MissingBot
+wikiuser=USERNAME
 
 # password for your mediawiki account
 password=YOUR PASSWORD
