@@ -48,13 +48,14 @@ $ java -jar missingBot-1.0.jar -ls -l de
 ### filter by title category
 
 Filtering by missing labels by label category.
+
 Options: OntologyClass, OntologyProperty and Datatype
 
 ```sh
 $ java -jar missingBot-1.0.jar -ls -l de -f OntologyClass
 ```
 
-### Translate labels
+### translate labels
 ```sh
 $ java -jar missingBot-1.0.jar -ls -l de -t translation.txt
 ```
