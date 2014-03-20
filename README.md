@@ -30,8 +30,41 @@ password=YOUR PASSWORD
 Your need edit rights.
 
 ## Run the bot
+
+### Help output
 ```sh
 $ java -jar missingBot-1.0.jar -help
+```
+
+### list all missing labels in english in the mappings wiki by 2-letter language code
+```sh
+$ java -jar missingBot-1.0.jar -ls -l de
+```
+
+### filter missing labels by title category.
+
+Options: OntologyClass, OntologyProperty and Datatype
+
+```sh
+$ java -jar missingBot-1.0.jar -ls -l de -f OntologyClass
+```
+
+### Translate to new labels from english labels
+```sh
+$ java -jar missingBot-1.0.jar -ls -l de -t translation.txt
+```
+
+The **translation.txt** is tab seperated with two columns.
+The first column contains the english label and the second
+column contains your translation.
+
+#### translation file example
+```
+abbey	Abtei
+administrative region	Verwaltungsregion
+agent	Agent
+altitude	Höhe
+amateur boxer	Amateurboxer
 ```
 
 ## License
