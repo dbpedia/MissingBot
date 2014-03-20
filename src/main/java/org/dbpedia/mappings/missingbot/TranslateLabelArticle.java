@@ -10,11 +10,30 @@ import java.util.regex.Pattern;
 
 public class TranslateLabelArticle extends Article {
 
+    /**
+     * Start of the original wiki text.
+     */
     private String first;
+
+    /**
+     * Rest of the original wiki text.
+     */
     private String last;
+
+    /**
+     * the english label from the article, if found
+     */
     public String en_label;
     public String translated_label;
+
+    /**
+     * Format that is used in the article for labels.
+     */
     private String label_format;
+
+    /**
+     * 2-letter language code for the new label.
+     */
     private String language;
 
 
@@ -33,6 +52,12 @@ public class TranslateLabelArticle extends Article {
         }
     }
 
+    /**
+     * Parsing the wiki text and find english label.
+     * Also splits old wiki text in two parts.
+     * The new label will be between these two parts.
+     *
+     */
     private void parse() {
         // label1 und label2 are named groups for the english label
         String p1 = "\\{\\{label\\|en\\|(?<label1>.*)\\}\\}\n";
@@ -66,10 +91,21 @@ public class TranslateLabelArticle extends Article {
         this.last = this.getText().substring(m.end());
     }
 
+
+    /**
+     * Check if english label is found.
+     *
+     * @return boolean, true if found else false
+     */
     public boolean foundLabel() {
         return this.en_label != null;
     }
 
+    /**
+     * Check if translation exists for given language code.
+     *
+     * @return boolean, true if found else false
+     */
     public boolean translationAlreadyExists() {
         String p1 = "\\{\\{label\\|" + this.language + "\\|(?<label1>.*)\\}\\}\n";
         String p2 = "\\| rdfs:label@" + this.language + " = (?<label2>.*)\n";
@@ -81,8 +117,9 @@ public class TranslateLabelArticle extends Article {
     }
 
     /**
-     * Build new wiki page with translated
-     * @return
+     * Build new wiki page with translated label.
+     *
+     * @return string with new wiki text
      */
     public String build_new_text() {
         // TODO Test, ob bereits LANGUAGE labe exisitert
@@ -101,6 +138,10 @@ public class TranslateLabelArticle extends Article {
         }
 
         if(this.translationAlreadyExists()) {
+            return;
+        }
+
+        if(this.translated_label == null) {
             return;
         }
 
