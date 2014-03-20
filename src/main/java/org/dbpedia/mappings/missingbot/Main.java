@@ -36,7 +36,7 @@ public class Main {
         options.addOption("l",
                           "lang",
                           true,
-                          "language for missing mappings");
+                          "2-letter language code for missing mappings in wiki.");
 
         options.addOption("c",
                           "config",
