@@ -36,20 +36,25 @@ Your need edit rights.
 $ java -jar missingBot-1.0.jar -help
 ```
 
-### list all missing labels in english in the mappings wiki by 2-letter language code
+### list all missing labels
+
+This command will list all missing labels in english
+from the german mappings wiki.
+
 ```sh
 $ java -jar missingBot-1.0.jar -ls -l de
 ```
 
-### filter missing labels by title category.
+### filter by title category
 
+Filtering by missing labels by label category.
 Options: OntologyClass, OntologyProperty and Datatype
 
 ```sh
 $ java -jar missingBot-1.0.jar -ls -l de -f OntologyClass
 ```
 
-### Translate to new labels from english labels
+### Translate labels
 ```sh
 $ java -jar missingBot-1.0.jar -ls -l de -t translation.txt
 ```
@@ -57,6 +62,8 @@ $ java -jar missingBot-1.0.jar -ls -l de -t translation.txt
 The **translation.txt** is tab seperated with two columns.
 The first column contains the english label and the second
 column contains your translation.
+
+Note: Filering titles by category works too.
 
 #### translation file example
 ```
