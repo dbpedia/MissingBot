@@ -42,7 +42,7 @@ This command will list all missing labels in english
 from the german mappings wiki.
 
 ```sh
-$ java -jar missingBot-1.0.jar -ls -l de
+$ java -jar missingBot-1.0.jar -list_missing -lang de
 ```
 
 ### filter by title category
@@ -52,12 +52,12 @@ Filtering by missing labels by label category.
 Options: OntologyClass, OntologyProperty and Datatype
 
 ```sh
-$ java -jar missingBot-1.0.jar -ls -l de -f OntologyClass
+$ java -jar missingBot-1.0.jar -list_missing -lang de -f OntologyClass
 ```
 
 ### translate labels
 ```sh
-$ java -jar missingBot-1.0.jar -ls -l de -t translation.txt
+$ java -jar missingBot-1.0.jar -lang de -t translation.txt
 ```
 
 The **translation.txt** is tab seperated with two columns.
