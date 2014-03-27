@@ -173,11 +173,17 @@ public class Main {
 
                 article.translated_label = translated_label;
 
+                String old_revision = article.getRevisionId();
+
+                // make minor edit and add summary
+                article.setMinorEdit(true);
+                article.setEditSummary("label@" + language + " = " + translated_label);
+
                 article.save();
                 change_counter++;
 
                 logger.info(pad + "Revision from changed \"" +
-                            article.getRevisionId() +
+                            old_revision +
                             "\" to \"" + article.getRevisionId() + "\"");
 
                 logger.info("done!");
