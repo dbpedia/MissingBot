@@ -11,13 +11,31 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
+    public static List<String> getArticles(String filename) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+
+        String line;
+        ArrayList<String> articles = new ArrayList<String>();
+
+        while((line = reader.readLine()) != null) {
+            String values[] = line.split("\t");
+            articles.add(values[0]);
+        }
+        reader.close();
+
+        return articles;
+    }
 
     public static Options constructOptions() {
         // create Options object
@@ -46,7 +64,7 @@ public class Main {
         options.addOption("t",
                           "translation_file",
                           true,
-                          "Tab seperated file with one translation per line e.g. <english label>\\t<translation>\\n");
+                          "Tab seperated file with one translation per line e.g. <article>\\t<english label>\\t<translation>\\n");
 
         options.addOption("f",
                           "filter",
@@ -116,15 +134,14 @@ public class Main {
             bot.login(config.getString("wikiuser"),
                       config.getString("password"));
 
-            AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
 
-            // TODO es sollen englische Label gelistet werden
             if(line.hasOption("list_missing")) {
+                AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
                 for (String missing : apt) {
                     TranslateLabelArticle article = new TranslateLabelArticle(bot, missing, language);
 
                     if(article.foundLabel()) {
-                        System.out.println(article.en_label);
+                        System.out.println(missing + "\t" + article.en_label);
                     }
                 }
                 System.exit(0);
@@ -137,9 +154,11 @@ public class Main {
             }
 
             Translator trans;
+            List<String> articles;
 
             try {
                 trans = new FileTranslator(line.getOptionValue("translation_file"));
+                articles = getArticles(line.getOptionValue("translation_file"));
             } catch (IOException e) {
                 e.printStackTrace();
                 System.exit(1);
@@ -148,7 +167,7 @@ public class Main {
 
             int change_counter = 0;
 
-            for (String missing : apt) {
+            for (String missing : articles) {
                 logger.info("Processing " + missing + " ...");
                 String pad = String.format("%11s", "");
 
@@ -189,7 +208,7 @@ public class Main {
                 logger.info("done!");
             }
 
-            logger.info("Translated " + change_counter + " of " + apt.length + " Labels.");
+            logger.info("Translated " + change_counter + " Labels.");
 
         }
         catch( ParseException exp ) {
