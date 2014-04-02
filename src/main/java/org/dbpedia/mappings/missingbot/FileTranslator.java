@@ -23,9 +23,9 @@ public class FileTranslator implements Translator {
      * Creates Translator Object that translates only words
      * given in the translation file.
      *
-     * Tab-seperated translation file with two columns.
-     * The first column contains source language and the second
-     * column contains the destination/translated language of the first.
+     * Tab-seperated translation file with three columns.
+     * The second column contains source language and the third
+     * column contains the destination/translated language of the second.
      *
      * @param filename the translation file
      * @throws IOException if file is not found
@@ -37,8 +37,8 @@ public class FileTranslator implements Translator {
 
     /**
      * Read a tab seperated file with two columns.
-     * First column should be the orignal language
-     * and in the second column should be translated
+     * Secong column should be the orignal language
+     * and in the third column should be translated
      * language.
      *
      * @throws IOException if file not found
@@ -50,8 +50,9 @@ public class FileTranslator implements Translator {
 
         while((line = reader.readLine()) != null) {
             String values[] = line.split("\t");
-            String label = values[0];
-            String translation = values[1];
+            // ignore first column (article name)
+            String label = values[1];
+            String translation = values[2];
             map.put(label, translation);
         }
         reader.close();
