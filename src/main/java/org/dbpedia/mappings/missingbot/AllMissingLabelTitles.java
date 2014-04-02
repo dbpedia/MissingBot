@@ -33,12 +33,6 @@ public class AllMissingLabelTitles implements Iterable<String>  {
     private final String filter;
 
     /**
-     * Number of titles
-     */
-    public int length = 0;
-
-
-    /**
      * Creates an iterator over all titles
      *
      * @param language language code for mapping wiki
@@ -102,8 +96,6 @@ public class AllMissingLabelTitles implements Iterable<String>  {
     public Iterator<String> iterator() {
         ArrayList<String> missingLinks = getMissingLinks();
 
-        this.length = 0;
-
         Collection<String> missingTitles = new ArrayList<String>();
 
         for (String link : missingLinks) {
@@ -115,7 +107,6 @@ public class AllMissingLabelTitles implements Iterable<String>  {
             }
 
             missingTitles.add(title);
-            this.length++;
         }
 
         return missingTitles.iterator();
