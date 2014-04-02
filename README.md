@@ -60,19 +60,20 @@ $ java -jar missingBot-1.0.jar -list_missing -lang de -f OntologyClass
 $ java -jar missingBot-1.0.jar -lang de -t translation.txt
 ```
 
-The **translation.txt** is tab seperated with two columns.
-The first column contains the english label and the second
+The **translation.txt** is tab seperated with three columns.
+The first column has the article title for the translation.
+The second column contains the english label and the third
 column contains your translation.
 
 Note: Filering titles by category works too.
 
 #### translation file example
 ```
-abbey	Abtei
-administrative region	Verwaltungsregion
-agent	Agent
-altitude	Höhe
-amateur boxer	Amateurboxer
+OntologyClass:Abbey	abbey	Abtei
+OntologyClass:AdministrativeRegion	administrative region	Verwaltungsregion
+OntologyClass:Agent	agent	Agent
+OntologyClass:Altitude	altitude	Höhe
+OntologyClass:AmateurBoxer	amateur boxer	Amateurboxer
 ```
 
 ## License
