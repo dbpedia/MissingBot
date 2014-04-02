@@ -45,6 +45,17 @@ from the german mappings wiki.
 $ java -jar missingBot-1.0.jar -list_missing -lang de
 ```
 
+#### Output
+```
+...
+OntologyClass:Treadmill	Treadmill
+OntologyClass:Type	Type
+OntologyClass:VideogamesLeague	videogames league
+OntologyClass:VolleyballCoach	volleyball coach
+OntologyClass:VolleyballLeague	volleyball league
+...
+```
+
 ### filter by title category
 
 Filtering by missing labels by label category.
