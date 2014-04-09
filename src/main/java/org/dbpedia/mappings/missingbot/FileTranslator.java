@@ -51,8 +51,14 @@ public class FileTranslator implements Translator {
         while((line = reader.readLine()) != null) {
             String values[] = line.split("\t");
             // ignore first column (article name)
-            String label = values[1];
-            String translation = values[2];
+            String label;
+            String translation;
+            try {
+                label = values[1];
+                translation = values[2];
+            } catch(ArrayIndexOutOfBoundsException ex) {
+                continue;
+            }
             map.put(label, translation);
         }
         reader.close();
