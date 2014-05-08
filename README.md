@@ -1,4 +1,4 @@
-missingBot
+MissingBot
 ==========
 
 Bot for http://mappings.dbpedia.org to translate Labels.
