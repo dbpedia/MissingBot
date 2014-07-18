@@ -40,9 +40,10 @@ public class TranslateLabelArticle extends Article {
     public TranslateLabelArticle(MediaWikiBot bot, String title, String language) {
         super(bot, title);
 
-        if(!bot.isLoggedIn()) {
-            throw new ProcessException("User is not logged in.");
-        }
+        // TODO: removed for TokenBot without login
+//        if(!bot.isLoggedIn()) {
+//            throw new ProcessException("User is not logged in.");
+//        }
 
         this.language = language;
         try {
