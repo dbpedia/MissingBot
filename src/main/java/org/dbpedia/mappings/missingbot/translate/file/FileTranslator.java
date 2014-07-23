@@ -1,4 +1,6 @@
-package org.dbpedia.mappings.missingbot;
+package org.dbpedia.mappings.missingbot.translate.file;
+
+import org.dbpedia.mappings.missingbot.translate.Translator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

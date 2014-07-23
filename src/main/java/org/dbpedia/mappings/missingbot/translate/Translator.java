@@ -1,4 +1,4 @@
-package org.dbpedia.mappings.missingbot;
+package org.dbpedia.mappings.missingbot.translate;
 
 /**
  * Interface for translating a String to a specific language.
