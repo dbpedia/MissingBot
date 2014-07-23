@@ -1,4 +1,4 @@
-package org.dbpedia.mappings.missingbot;
+package org.dbpedia.mappings.missingbot.label;
 
 import net.sourceforge.jwbf.core.actions.util.ProcessException;
 import net.sourceforge.jwbf.core.contentRep.Article;

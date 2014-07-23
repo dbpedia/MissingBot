@@ -1,4 +1,4 @@
-package org.dbpedia.mappings.missingbot;
+package org.dbpedia.mappings.missingbot.label;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
