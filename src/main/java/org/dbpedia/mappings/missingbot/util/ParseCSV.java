@@ -20,7 +20,7 @@ public class ParseCSV {
         String[] columns = new String[] {"category", "name", "template", "url"};
         strategy.setColumnMapping(columns);
 
-        CSVReader reader = new CSVReader(new FileReader(path), ',', '\'', 1);
+        CSVReader reader = new CSVReader(new FileReader(path), ',', '\"', 1);
         CsvToBean<Record> csv = new CsvToBean<Record>();
         return csv.parse(strategy, reader);
     }
