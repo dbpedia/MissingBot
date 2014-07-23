@@ -9,12 +9,12 @@ import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 public class NewMappingArticle extends Article {
 
     private String category;
-    private String url;
+    private String[] urls;
 
     private String template = "{{TemplateMapping\n" +
             "| mapToClass = Document\n" +
             "| mappings =\n" +
-            "\t{{ConstantMapping | ontologyProperty = license | value = %s}}\n" +
+            "%s" +
             "\n" +
             "<!-- Please remove the following mapping once you verified the licence URL-->\n" +
             "\t{{ConstantMapping | ontologyProperty = license | value = http://mappings.dbpedia.org/index.php/Category:Unverified_Commons_media_license}}\n" +
@@ -25,14 +25,16 @@ public class NewMappingArticle extends Article {
             "<!-- Please remove the following category once you verified the licence URL-->\n" +
             "[[Category:Unverified Commons media license]]";
 
+    private String constant_mapping = "\t{{ConstantMapping | ontologyProperty = license | value = %s}}\n";
+
     public NewMappingArticle(MediaWikiBot bot,
                              String title,
                              String category,
-                             String url
+                             String[] urls
     ) {
         super(bot, title);
         this.category = category;
-        this.url = url;
+        this.urls = urls;
     }
 
     public boolean exists() {
@@ -40,8 +42,18 @@ public class NewMappingArticle extends Article {
         return txt.length() != 0;
     }
 
+    private String build_text() {
+        String mapping = "";
+
+        for(String url : urls) {
+            mapping += String.format(constant_mapping, url);
+        }
+
+        return String.format(this.template, mapping, this.category);
+    }
+
     public void save() {
-        String newText = String.format(this.template, this.url, this.category);
+        String newText = build_text();
         this.setText(newText);
         super.save();
     }
