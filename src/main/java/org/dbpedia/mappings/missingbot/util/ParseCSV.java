@@ -13,24 +13,24 @@ import java.util.List;
  */
 public class ParseCSV {
 
-    public static List<Record> parseCreationFile(String path, String delimiter) throws IOException {
+    public static List<Record> parseCreationFile(String path, char delimiter) throws IOException {
         ColumnPositionMappingStrategy<Record> strategy = new ColumnPositionMappingStrategy<Record>();
         strategy.setType(Record.class);
 
         String[] columns = new String[] {"category", "name", "template", "url"};
         strategy.setColumnMapping(columns);
 
-        CSVReader reader = new CSVReader(new FileReader(path), ',', '\"', 1);
+        CSVReader reader = new CSVReader(new FileReader(path), delimiter, '\"', 1);
         CsvToBean<Record> csv = new CsvToBean<Record>();
         return csv.parse(strategy, reader);
     }
 
     public static List<Record> parseCreationCSV(String path) throws IOException {
-       return parseCreationFile(path, ",");
+       return parseCreationFile(path, ',');
     }
 
     public static List<Record> parseCreationTSV(String path) throws IOException {
-        return parseCreationFile(path, "\t");
+        return parseCreationFile(path, '\t');
     }
 
 }

@@ -208,7 +208,7 @@ public class Main {
                     }
 
                     if(line.hasOption("db")) {
-                        Store store = null;
+                        Store store;
                         try {
                             store = new Store(line.getOptionValue("db"));
                             store.put(missing, article.en_label, translation, language);
