@@ -8,12 +8,19 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import org.dbpedia.mappings.missingbot.db.Store;
+import org.dbpedia.mappings.missingbot.label.AllMissingLabelTitles;
+import org.dbpedia.mappings.missingbot.label.TranslateLabelArticle;
+import org.dbpedia.mappings.missingbot.translate.Translator;
+import org.dbpedia.mappings.missingbot.translate.file.FileTranslator;
+import org.dbpedia.mappings.missingbot.translate.google.TranslateLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,6 +77,10 @@ public class Main {
                           "filter",
                           true,
                           "filter for missing labels. Options: OntologyClass, OntologyProperty and Datatype. Default: All");
+
+        options.addOption( "db",
+                           true,
+                            "path for h2 db to save missings in.");
 
         return options;
     }
@@ -137,12 +148,27 @@ public class Main {
 
             if(line.hasOption("list_missing")) {
                 AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
+
                 for (String missing : apt) {
                     TranslateLabelArticle article = new TranslateLabelArticle(bot, missing, language);
 
                     if(article.foundLabel()) {
                         System.out.println(missing + "\t" + article.en_label);
                     }
+
+                    if(line.hasOption("db")) {
+                        Store store = null;
+                        try {
+                            store = new Store(line.getOptionValue("db"));
+                            store.put(missing, article.en_label, translation, language);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        logger.info(missing + "\t" + article.en_label + "\t" + translation);
+                    } else {
+                        System.out.println(missing + "\t" + article.en_label + "\t" + translation);
+                    }
+
                 }
                 System.exit(0);
             }
