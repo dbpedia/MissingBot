@@ -152,8 +152,19 @@ public class Main {
                 for (String missing : apt) {
                     TranslateLabelArticle article = new TranslateLabelArticle(bot, missing, language);
 
-                    if(article.foundLabel()) {
-                        System.out.println(missing + "\t" + article.en_label);
+                    if(!article.foundLabel()) {
+                        continue;
+                    }
+
+                    String translation = "";
+                    try {
+                        TranslateLabel translate = new TranslateLabel(
+                                config.getString("google_api_key"),
+                                config.getString("app_name"));
+
+                        translation = translate.translate(article.en_label, language);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
                     if(line.hasOption("db")) {
