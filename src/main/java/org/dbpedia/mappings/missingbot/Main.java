@@ -8,12 +8,15 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import org.dbpedia.mappings.missingbot.create.NewMappingArticle;
+import org.dbpedia.mappings.missingbot.create.Record;
 import org.dbpedia.mappings.missingbot.db.Store;
 import org.dbpedia.mappings.missingbot.label.AllMissingLabelTitles;
 import org.dbpedia.mappings.missingbot.label.TranslateLabelArticle;
 import org.dbpedia.mappings.missingbot.translate.Translator;
 import org.dbpedia.mappings.missingbot.translate.file.FileTranslator;
 import org.dbpedia.mappings.missingbot.translate.google.TranslateLabel;
+import org.dbpedia.mappings.missingbot.util.ParseCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,8 +85,13 @@ public class Main {
                            true,
                             "path for h2 db to save missings in.");
 
+        options.addOption( "create_mappings",
+                           true,
+                           "create missing template mappings from file.");
+
         return options;
     }
+
 
     public static void main(String[] args) {
 
@@ -103,7 +111,8 @@ public class Main {
                 System.exit(0);
             }
 
-            if(!line.hasOption("lang")) {
+            // for argument create_mappings no language is needed
+            if(!line.hasOption("lang") && !line.hasOption("create_mappings")) {
                 System.err.println("Missing required option: lang");
                 formatter.printHelp( "missingBot", options );
                 System.exit(1);
@@ -139,12 +148,43 @@ public class Main {
                 return;
             }
 
-            String language = line.getOptionValue("lang");
-
             MediaWikiBot bot = new MediaWikiBot(config.getString("wikihosturl"));
             bot.login(config.getString("wikiuser"),
                       config.getString("password"));
 
+            if(line.hasOption("create_mappings")) {
+                String template_path = line.getOptionValue("create_mappings");
+                List<Record> records = null;
+                try {
+                     records = ParseCSV.parseCreationCSV(template_path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+
+                String title_prefix = "Mapping_commons:";
+
+                for(Record record : records) {
+                    NewMappingArticle creator = new NewMappingArticle(
+                            bot,
+                            title_prefix + record.getName(),
+                            record.getCategory(),
+                            record.getUrl().split(" ")
+                    );
+
+                    if(creator.exists()) {
+                        logger.info("Article with title: " + creator.getTitle() + " already exists.");
+                        logger.info("Nothing to do.");
+                    } else {
+                        creator.save();
+                        logger.info("Created mapping under title: " + creator.getTitle());
+                    }
+                }
+
+                System.exit(0);
+            }
+
+            String language = line.getOptionValue("lang");
 
             if(line.hasOption("list_missing")) {
                 AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
