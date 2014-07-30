@@ -2,5 +2,6 @@
 dependency-reduced-pom.xml
 missingBot.iml
 src/main/resources/wiki.properties
+src/main/resources/bot.properties
 src/main/java/META-INF/
 target/
