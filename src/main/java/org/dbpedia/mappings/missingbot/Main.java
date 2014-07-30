@@ -197,7 +197,7 @@ public class Main {
                 String template_path = line.getOptionValue("create_mappings");
                 List<Record> records = null;
                 try {
-                     records = ParseCSV.parseCreationCSV(template_path);
+                    records = ParseCSV.parseCreationCSV(template_path);
                 } catch (IOException e) {
                     e.printStackTrace();
                     System.exit(1);
@@ -223,6 +223,25 @@ public class Main {
                 }
 
                 System.exit(0);
+            }
+
+            // for argument create_mappings no language is needed
+            if(!line.hasOption("lang")) {
+                System.err.println("Missing required option: lang");
+                formatter.printHelp( "missingBot", options );
+                System.exit(1);
+                return;
+            }
+
+            String filter = "";
+            if(line.hasOption("filter")) {
+                List<String> filters = Arrays.asList("OntologyClass", "OntologyProperty", "Datatype");
+                for(String f : filters) {
+                    String filter_option = line.getOptionValue("filter");
+                    if(filter_option.equals(f)) {
+                        filter = filter_option + ":";
+                    }
+                }
             }
 
             String language = line.getOptionValue("lang");
