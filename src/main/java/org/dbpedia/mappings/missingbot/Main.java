@@ -114,7 +114,7 @@ public class Main {
         options.addOption("c",
                           "config",
                           true,
-                          "config file for dbpedia mappings wiki (default: wiki.properties)");
+                          "config file for dbpedia mappings wiki (default: bot.properties)");
 
         options.addOption("t",
                           "translation_file",
@@ -160,31 +160,12 @@ public class Main {
                 System.exit(0);
             }
 
-            // for argument create_mappings no language is needed
-            if(!line.hasOption("lang") && !line.hasOption("create_mappings")) {
-                System.err.println("Missing required option: lang");
-                formatter.printHelp( "missingBot", options );
-                System.exit(1);
-                return;
-            }
-
-            String filter = "";
-            if(line.hasOption("filter")) {
-                List<String> filters = Arrays.asList("OntologyClass", "OntologyProperty", "Datatype");
-                for(String f : filters) {
-                    String filter_option = line.getOptionValue("filter");
-                    if(filter_option.equals(f)) {
-                        filter = filter_option + ":";
-                    }
-                }
-            }
-
             String configFile;
 
             if(line.hasOption("config")) {
                 configFile = line.getOptionValue("config");
             } else {
-                configFile = "wiki.properties";
+                configFile = "bot.properties";
             }
 
             Configuration config;
@@ -268,13 +249,9 @@ public class Main {
                     }
 
                     if(line.hasOption("db")) {
-                        Store store;
-                        try {
-                            store = new Store(line.getOptionValue("db"));
-                            store.put(missing, article.en_label, translation, language);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
+                        Store.initStore(config.getString("jdbc_url"));
+                        Store store = new Store();
+                        store.put(missing, article.en_label, translation, language);
                         logger.info(missing + "\t" + article.en_label + "\t" + translation);
                     } else {
                         System.out.println(missing + "\t" + article.en_label + "\t" + translation);
