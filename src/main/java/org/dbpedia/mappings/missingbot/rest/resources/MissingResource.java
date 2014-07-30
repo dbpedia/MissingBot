@@ -63,7 +63,7 @@ public class MissingResource {
         Store store = new Store();
         store.remove(title, language);
 
-        String configFile = "wiki.properties";
+        String configFile = "bot.properties";
 
         Configuration config;
 
