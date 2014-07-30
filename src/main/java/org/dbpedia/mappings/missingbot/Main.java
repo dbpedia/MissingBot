@@ -1,6 +1,9 @@
 package org.dbpedia.mappings.missingbot;
 
 
+import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
+import com.sun.jersey.api.core.PackagesResourceConfig;
+import com.sun.jersey.api.core.ResourceConfig;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
 import org.apache.commons.cli.*;
@@ -10,19 +13,26 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import org.dbpedia.mappings.missingbot.create.NewMappingArticle;
 import org.dbpedia.mappings.missingbot.create.Record;
-import org.dbpedia.mappings.missingbot.db.Store;
+import org.dbpedia.mappings.missingbot.rest.filter.CharsetResponseFilter;
+import org.dbpedia.mappings.missingbot.rest.filter.CorsResponseFilter;
+import org.dbpedia.mappings.missingbot.storage.Store;
 import org.dbpedia.mappings.missingbot.label.AllMissingLabelTitles;
 import org.dbpedia.mappings.missingbot.label.TranslateLabelArticle;
 import org.dbpedia.mappings.missingbot.translate.Translator;
 import org.dbpedia.mappings.missingbot.translate.file.FileTranslator;
 import org.dbpedia.mappings.missingbot.translate.google.TranslateLabel;
 import org.dbpedia.mappings.missingbot.util.ParseCSV;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +55,41 @@ public class Main {
         reader.close();
 
         return articles;
+    }
+
+    private static URI getBaseURI(int port) {
+        return UriBuilder.fromUri("http://0.0.0.0/").port(port).build();
+    }
+
+    protected static HttpServer startServer(int port) throws IOException {
+        System.out.println("Starting grizzly...");
+        ResourceConfig rc = new PackagesResourceConfig("org/dbpedia/mappings/missingbot/rest/resources");
+        rc.getProperties().put(ResourceConfig.PROPERTY_CONTAINER_RESPONSE_FILTERS, CorsResponseFilter.class.getName());
+        rc.getProperties().put(ResourceConfig.PROPERTY_CONTAINER_RESPONSE_FILTERS, CharsetResponseFilter.class.getName());
+
+        URI baseUri = getBaseURI(port);
+
+        return GrizzlyServerFactory.createHttpServer(baseUri, rc);
+    }
+
+    public static void startH2Console() {
+        try {
+            Server.createWebServer().start();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void run_rest(int port) throws IOException {
+//        startH2Console();
+        HttpServer httpServer = startServer(port);
+        String addr = InetAddress.getLocalHost().getHostAddress() + ":" + port;
+        System.out.println(String.format("Jersey app started with WADL available at "
+                        + "%s/application.wadl\nTry out %s/missings\nHit enter to stop it...",
+                addr, addr));
+
+        System.in.read();
+        httpServer.stop();
     }
 
     public static Options constructOptions() {
@@ -82,12 +127,16 @@ public class Main {
                           "filter for missing labels. Options: OntologyClass, OntologyProperty and Datatype. Default: All");
 
         options.addOption( "db",
-                           true,
+                           false,
                             "path for h2 db to save missings in.");
 
         options.addOption( "create_mappings",
                            true,
                            "create missing template mappings from file.");
+
+        options.addOption( "start_rest",
+                           false,
+                           "start rest service for to request articles with missing labels.");
 
         return options;
     }
@@ -146,6 +195,17 @@ public class Main {
                 e.printStackTrace();
                 System.exit(1);
                 return;
+            }
+
+            if(line.hasOption("start_rest")) {
+                try {
+                    Store.initStore(config.getString("jdbc_url"));
+                    run_rest(config.getInt("rest_port"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+                System.exit(0);
             }
 
             MediaWikiBot bot = new MediaWikiBot(config.getString("wikihosturl"));
