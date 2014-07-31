@@ -42,6 +42,9 @@ public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+    public static Configuration config;
+    private static MediaWikiBot bot;
+
     public static List<String> getArticles(String filename) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(filename));
 
@@ -168,8 +171,6 @@ public class Main {
                 configFile = "bot.properties";
             }
 
-            Configuration config;
-
             try {
                 config = new PropertiesConfiguration(configFile);
             } catch (ConfigurationException e) {
@@ -189,7 +190,7 @@ public class Main {
                 System.exit(0);
             }
 
-            MediaWikiBot bot = new MediaWikiBot(config.getString("wikihosturl"));
+            bot = new MediaWikiBot(config.getString("wikihosturl"));
             bot.login(config.getString("wikiuser"),
                       config.getString("password"));
 
