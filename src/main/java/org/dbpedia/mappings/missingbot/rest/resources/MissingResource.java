@@ -1,8 +1,6 @@
 package org.dbpedia.mappings.missingbot.rest.resources;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.dbpedia.mappings.missingbot.Main;
 import org.dbpedia.mappings.missingbot.rest.bean.Missing;
 import org.dbpedia.mappings.missingbot.storage.Store;
 import org.dbpedia.mappings.missingbot.token.TokenBot;
@@ -63,18 +61,7 @@ public class MissingResource {
         Store store = new Store();
         store.remove(title, language);
 
-        String configFile = "bot.properties";
-
-        Configuration config;
-
-        try {
-            config = new PropertiesConfiguration(configFile);
-        } catch (ConfigurationException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        TokenBot tokenBot = new TokenBot(session_prefix, session_id, config.getString("wikihosturl"));
+        TokenBot tokenBot = new TokenBot(session_prefix, session_id, Main.config.getString("wikihosturl"));
 
         tokenBot.save_article(title, translation, language, token);
 
