@@ -22,7 +22,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.2</version>
+                <version>2.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -33,9 +33,13 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.dbpedia.mappings.missingbot.Main</mainClass>
+                                    <manifestEntries>
+                                        <Implementation-Version>missingBot</Implementation-Version>
+                                        <Implementation-Title>missingBot</Implementation-Title>
+                                    </manifestEntries>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                                    <resource>wiki.properties</resource>
+                                    <resource>bot.properties</resource>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -44,16 +48,19 @@
             </plugin>
         </plugins>
     </build>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <repositories>
         <repository>
-            <id>in-project</id>
-            <name>jwbf snapshot repo</name>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
     </repositories>
+
     <dependencies>
         <dependency>
 	        <groupId>net.sourceforge</groupId>
