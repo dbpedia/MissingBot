@@ -106,13 +106,8 @@ public class Main {
 
         options.addOption("ls",
                 "list_missing",
-                false,
-                "list missing labels for given language");
-
-        options.addOption("l",
-                          "lang",
-                          true,
-                          "2-letter language code for missing mappings in wiki.");
+                true,
+                "list missing labels for given 2-letter language.");
 
         options.addOption("c",
                           "config",
@@ -131,7 +126,7 @@ public class Main {
 
         options.addOption( "db",
                            false,
-                            "path for h2 db to save missings in.");
+                            "store listing results in database.");
 
         options.addOption( "create_mappings",
                            true,
@@ -226,14 +221,6 @@ public class Main {
                 System.exit(0);
             }
 
-            // for argument create_mappings no language is needed
-            if(!line.hasOption("lang")) {
-                System.err.println("Missing required option: lang");
-                formatter.printHelp( "missingBot", options );
-                System.exit(1);
-                return;
-            }
-
             String filter = "";
             if(line.hasOption("filter")) {
                 List<String> filters = Arrays.asList("OntologyClass", "OntologyProperty", "Datatype");
@@ -245,7 +232,7 @@ public class Main {
                 }
             }
 
-            String language = line.getOptionValue("lang");
+            String language = line.getOptionValue("list_missing");
 
             if(line.hasOption("list_missing")) {
                 AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
