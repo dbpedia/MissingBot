@@ -15,7 +15,7 @@ The executable .jar is located in the target/ directory.
 ## Configuration
 Go to the directory where your executable .jar is located.
 
-### create wiki.properties
+### create bot.properties
 ```ini
 # url for the mappings wiki. Default: http://mappings.dbpedia.org
 wikihosturl=http://mappings.dbpedia.org/
@@ -25,24 +25,60 @@ wikiuser=USERNAME
 
 # password for your mediawiki account
 password=YOUR PASSWORD
+
+# h2db location
+jdbc_url=jdbc:h2:file:${sys:user.home}/db/missing_translation;AUTO_SERVER=TRUE
+
+# rest service port
+rest_port=9998
+
+# api key for googles translate api
+google_api_key=GOOGLE_API_KEY
+app_name=YOUR_APP
 ```
 
-Your need edit rights.
+You will need edit rights.
 
 ## Run the bot
 
 ### Help output
 ```sh
-$ java -jar missingBot-1.0.jar -help
+$ java -jar missingBot-1.2.jar -help
 ```
 
-### list all missing labels
+```
+usage: missingBot
+ -c,--config <arg>             config file for dbpedia mappings wiki
+                               (default: bot.properties)
+ -create_mappings <arg>        create missing template mappings from file.
+ -db                           store listing results in database.
+ -f,--filter <arg>             filter for missing labels. Options:
+                               OntologyClass, OntologyProperty and
+                               Datatype. Default: All
+ -h,--help                     print this message
+ -ls,--list_missing <arg>      list missing labels for given 2-letter
+                               language.
+ -start_rest                   start rest service for to request articles
+                               with missing labels.
+ -t,--translation_file <arg>   Tab seperated file with one translation per
+                               line e.g. <article>\t<english
+                               label>\t<translation>\n
+```
+
+### list missing labels translations
 
 This command will list all missing labels in english
 from the german mappings wiki.
 
 ```sh
-$ java -jar missingBot-1.0.jar -list_missing -lang de
+$ java -jar missingBot-1.2.jar -list_missing de
+```
+
+### store missing labels in database
+Using the jdbc url from bot.properties.
+
+```sh
+$ java -jar missingBot-1.2.jar -list_missing de -db
 ```
 
 #### Output
@@ -63,12 +99,12 @@ Filtering by missing labels by label category.
 Options: OntologyClass, OntologyProperty and Datatype
 
 ```sh
-$ java -jar missingBot-1.0.jar -list_missing -lang de -f OntologyClass
+$ java -jar missingBot-1.2.jar -list_missing de -f OntologyClass
 ```
 
 ### translate labels
 ```sh
-$ java -jar missingBot-1.0.jar -lang de -t translation.txt
+$ java -jar missingBot-1.2.jar de -t translation.txt
 ```
 
 The **translation.txt** is tab seperated with three columns.
@@ -85,6 +121,18 @@ OntologyClass:AdministrativeRegion	administrative region	Verwaltungsregion
 OntologyClass:Agent	agent	Agent
 OntologyClass:Altitude	altitude	Höhe
 OntologyClass:AmateurBoxer	amateur boxer	Amateurboxer
+```
+
+## using rest service
+The rest service get data from the h2 database.
+Store missing label data in db:
+```sh
+$ java -jar missingBot-1.2.jar -db -ls LANG
+```
+
+Start rest service:
+```sh
+$ java -jar missingBot-1.2.jar -start_rest
 ```
 
 ## License
