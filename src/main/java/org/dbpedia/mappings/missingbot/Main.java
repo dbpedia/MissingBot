@@ -129,6 +129,39 @@ public class Main {
         }
     }
 
+    public static void list_missing(String language, String filter, boolean db) {
+        AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
+
+        for (String missing : apt) {
+            TranslateLabelArticle article = new TranslateLabelArticle(bot, missing, language);
+
+            if(!article.foundLabel()) {
+                continue;
+            }
+
+            String translation = "";
+            try {
+                TranslateLabel translate = new TranslateLabel(
+                        config.getString("google_api_key"),
+                        config.getString("app_name"));
+
+                translation = translate.translate(article.en_label, language);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if(db) {
+                Store.initStore(config.getString("jdbc_url"));
+                Store store = new Store();
+                store.put(missing, article.en_label, translation, language);
+                logger.info(missing + "\t" + article.en_label + "\t" + translation);
+            } else {
+                System.out.println(missing + "\t" + article.en_label + "\t" + translation);
+            }
+
+        }
+    }
+
     public static Options constructOptions() {
         // create Options object
         Options options = new Options();
@@ -243,36 +276,7 @@ public class Main {
             String language = line.getOptionValue("list_missing");
 
             if(line.hasOption("list_missing")) {
-                AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
-
-                for (String missing : apt) {
-                    TranslateLabelArticle article = new TranslateLabelArticle(bot, missing, language);
-
-                    if(!article.foundLabel()) {
-                        continue;
-                    }
-
-                    String translation = "";
-                    try {
-                        TranslateLabel translate = new TranslateLabel(
-                                config.getString("google_api_key"),
-                                config.getString("app_name"));
-
-                        translation = translate.translate(article.en_label, language);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    if(line.hasOption("db")) {
-                        Store.initStore(config.getString("jdbc_url"));
-                        Store store = new Store();
-                        store.put(missing, article.en_label, translation, language);
-                        logger.info(missing + "\t" + article.en_label + "\t" + translation);
-                    } else {
-                        System.out.println(missing + "\t" + article.en_label + "\t" + translation);
-                    }
-
-                }
+                list_missing(language, filter, line.hasOption("db"));
                 System.exit(0);
             }
 
