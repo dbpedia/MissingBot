@@ -264,97 +264,97 @@ public class Main {
         // create the parser
         CommandLineParser parser = new GnuParser();
 
+        CommandLine line = null;
+
         try {
             // parse the command line arguments
-            CommandLine line = parser.parse( options, args );
-
-            if(line.hasOption("help")) {
-                formatter.printHelp( "missingBot", options );
-                System.exit(0);
-            }
-
-            String configFile;
-
-            if(line.hasOption("config")) {
-                configFile = line.getOptionValue("config");
-            } else {
-                configFile = "bot.properties";
-            }
-
-            try {
-                config = new PropertiesConfiguration(configFile);
-            } catch (ConfigurationException e) {
-                e.printStackTrace();
-                System.exit(1);
-                return;
-            }
-
-            if(line.hasOption("start_rest")) {
-                try {
-                    Store.initStore(config.getString("jdbc_url"));
-                    run_rest(config.getInt("rest_port"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    System.exit(1);
-                }
-                System.exit(0);
-            }
-
-            bot = new MediaWikiBot(config.getString("wikihosturl"));
-            bot.login(config.getString("wikiuser"),
-                      config.getString("password"));
-
-            if(line.hasOption("create_mappings")) {
-                String template_path = line.getOptionValue("create_mappings");
-                create_mappings(template_path);
-                System.exit(0);
-            }
-
-            String filter = "";
-            if(line.hasOption("filter")) {
-                List<String> filters = Arrays.asList("OntologyClass", "OntologyProperty", "Datatype");
-                for(String f : filters) {
-                    String filter_option = line.getOptionValue("filter");
-                    if(filter_option.equals(f)) {
-                        filter = filter_option + ":";
-                    }
-                }
-            }
-
-            String language = line.getOptionValue("list_missing");
-
-            if(line.hasOption("list_missing")) {
-                list_missing(language, filter, line.hasOption("db"));
-                System.exit(0);
-            }
-
-            if(!line.hasOption("translation_file")) {
-                System.err.println("Missing required option: translation_file");
-                formatter.printHelp( "missingBot", options );
-                System.exit(1);
-            }
-
-            Translator trans;
-            List<String> articles;
-
-            try {
-                trans = new FileTranslator(line.getOptionValue("translation_file"));
-                articles = getArticles(line.getOptionValue("translation_file"));
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(1);
-                return;
-            }
-
-            translate_labels(articles, language, trans);
-
-        }
-        catch( ParseException exp ) {
+             line = parser.parse( options, args );
+        } catch( ParseException exp ) {
             // oops, something went wrong
             formatter.printHelp( "missingBot", options );
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
             System.exit(1);
         }
+
+        if(line.hasOption("help")) {
+            formatter.printHelp( "missingBot", options );
+            System.exit(0);
+        }
+
+        String configFile;
+
+        if(line.hasOption("config")) {
+            configFile = line.getOptionValue("config");
+        } else {
+            configFile = "bot.properties";
+        }
+
+        try {
+            config = new PropertiesConfiguration(configFile);
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        if(line.hasOption("start_rest")) {
+            try {
+                Store.initStore(config.getString("jdbc_url"));
+                run_rest(config.getInt("rest_port"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            System.exit(0);
+        }
+
+        bot = new MediaWikiBot(config.getString("wikihosturl"));
+        bot.login(config.getString("wikiuser"),
+                  config.getString("password"));
+
+        if(line.hasOption("create_mappings")) {
+            String template_path = line.getOptionValue("create_mappings");
+            create_mappings(template_path);
+            System.exit(0);
+        }
+
+        String filter = "";
+        if(line.hasOption("filter")) {
+            List<String> filters = Arrays.asList("OntologyClass", "OntologyProperty", "Datatype");
+            for(String f : filters) {
+                String filter_option = line.getOptionValue("filter");
+                if(filter_option.equals(f)) {
+                    filter = filter_option + ":";
+                }
+            }
+        }
+
+        String language = line.getOptionValue("list_missing");
+
+        if(line.hasOption("list_missing")) {
+            list_missing(language, filter, line.hasOption("db"));
+            System.exit(0);
+        }
+
+        if(!line.hasOption("translation_file")) {
+            System.err.println("Missing required option: translation_file");
+            formatter.printHelp( "missingBot", options );
+            System.exit(1);
+        }
+
+        Translator trans;
+        List<String> articles;
+
+        try {
+            trans = new FileTranslator(line.getOptionValue("translation_file"));
+            articles = getArticles(line.getOptionValue("translation_file"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return;
+        }
+
+        translate_labels(articles, language, trans);
+
     }
 }
 
