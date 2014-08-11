@@ -162,6 +162,54 @@ public class Main {
         }
     }
 
+    public static void translate_labels(List<String> articles, String language, Translator trans) {
+        int change_counter = 0;
+
+        for (String missing : articles) {
+            logger.info("Processing " + missing + " ...");
+            String pad = String.format("%11s", "");
+
+            TranslateLabelArticle article = new TranslateLabelArticle(bot, missing, language);
+            String translated_label = trans.translate(article.en_label);
+
+            if(!article.foundLabel()) {
+                logger.info(pad + "No english label found in: " + missing);
+                logger.info("abort!");
+                continue;
+            } else if(translated_label == null) {
+                logger.info(pad + "Found no Translation for: \"" + article.en_label + "\"");
+                logger.info("abort!");
+                continue;
+            } else if(article.translationAlreadyExists()) {
+                logger.info(pad + "Translation already exists.");
+                logger.info("abort!");
+                continue;
+            } else {
+                logger.info(pad + "Translate \"" + article.en_label + "\" to \"" + translated_label + "\"");
+            }
+
+            article.translated_label = translated_label;
+
+            String old_revision = article.getRevisionId();
+
+            // make minor edit and add summary
+            article.setMinorEdit(true);
+            article.setEditSummary("label@" + language + " = " + translated_label);
+
+            article.save();
+            change_counter++;
+
+            logger.info(pad + "Revision from changed \"" +
+                    old_revision +
+                    "\" to \"" + article.getRevisionId() + "\"");
+
+            logger.info("done!");
+        }
+
+        logger.info("Translated " + change_counter + " Labels.");
+
+    }
+
     public static Options constructOptions() {
         // create Options object
         Options options = new Options();
@@ -298,50 +346,7 @@ public class Main {
                 return;
             }
 
-            int change_counter = 0;
-
-            for (String missing : articles) {
-                logger.info("Processing " + missing + " ...");
-                String pad = String.format("%11s", "");
-
-                TranslateLabelArticle article = new TranslateLabelArticle(bot, missing, language);
-                String translated_label = trans.translate(article.en_label);
-
-                if(!article.foundLabel()) {
-                    logger.info(pad + "No english label found in: " + missing);
-                    logger.info("abort!");
-                    continue;
-                } else if(translated_label == null) {
-                    logger.info(pad + "Found no Translation for: \"" + article.en_label + "\"");
-                    logger.info("abort!");
-                    continue;
-                } else if(article.translationAlreadyExists()) {
-                    logger.info(pad + "Translation already exists.");
-                    logger.info("abort!");
-                    continue;
-                } else {
-                    logger.info(pad + "Translate \"" + article.en_label + "\" to \"" + translated_label + "\"");
-                }
-
-                article.translated_label = translated_label;
-
-                String old_revision = article.getRevisionId();
-
-                // make minor edit and add summary
-                article.setMinorEdit(true);
-                article.setEditSummary("label@" + language + " = " + translated_label);
-
-                article.save();
-                change_counter++;
-
-                logger.info(pad + "Revision from changed \"" +
-                            old_revision +
-                            "\" to \"" + article.getRevisionId() + "\"");
-
-                logger.info("done!");
-            }
-
-            logger.info("Translated " + change_counter + " Labels.");
+            translate_labels(articles, language, trans);
 
         }
         catch( ParseException exp ) {
