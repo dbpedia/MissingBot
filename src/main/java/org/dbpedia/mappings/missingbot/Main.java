@@ -88,11 +88,16 @@ public class Main {
         HttpServer httpServer = startServer(port);
         String addr = InetAddress.getLocalHost().getHostAddress() + ":" + port;
         System.out.println(String.format("Jersey app started with WADL available at "
-                        + "%s/application.wadl\nTry out %s/missings\nHit enter to stop it...",
-                addr, addr));
+                        + "%s/application.wadl\nTry out %s/missings\nPress Ctrl-C for exit.",
+                        addr, addr));
 
-        System.in.read();
-        httpServer.stop();
+        try {
+            Thread.currentThread().join();
+        } catch(Exception ex) {
+            System.out.println(ex.getMessage());
+        } finally {
+            httpServer.stop();
+        }
     }
 
     public static Options constructOptions() {
