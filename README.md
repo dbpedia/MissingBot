@@ -135,6 +135,25 @@ Start rest service:
 $ java -jar missingBot-1.2.jar -start_rest
 ```
 
+## mediawiki extension
+Move the extension files in your ```extensions/``` folder.
+
+```
+cp mediawiki_extension/SuggestMissingLabelTranslation/ $MEDIAWIKI/extensions
+```
+
+Add the following line to your LocalSettings.php
+
+```php
+require_once( "$IP/extensions/SuggestMissingLabelTranslation/SuggestMissingLabelTranslation.php" );
+```
+
+Change the REST Service URL on line 12 in ```$IP/extensions/SuggestMissingLabelTranslation/SuggestMissingLabelTranslation.php"```
+
+```
+define( 'SMLT_REST_URL',  "$URL/missings/");¬
+```
+
 ## License
 
 The source code is under the terms of the [GNU General Public License, version 2](http://www.gnu.org/licenses/gpl-2.0.html).
