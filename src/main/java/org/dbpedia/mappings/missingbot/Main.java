@@ -100,6 +100,35 @@ public class Main {
         }
     }
 
+    public static void create_mappings(String template_path) {
+        List<Record> records = null;
+        try {
+            records = ParseCSV.parseCreationCSV(template_path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        String title_prefix = "Mapping_commons:";
+
+        for(Record record : records) {
+            NewMappingArticle creator = new NewMappingArticle(
+                    bot,
+                    title_prefix + record.getName(),
+                    record.getCategory(),
+                    record.getUrl().split(" ")
+            );
+
+            if(creator.exists()) {
+                logger.info("Article with title: " + creator.getTitle() + " already exists.");
+                logger.info("Nothing to do.");
+            } else {
+                creator.save();
+                logger.info("Created mapping under title: " + creator.getTitle());
+            }
+        }
+    }
+
     public static Options constructOptions() {
         // create Options object
         Options options = new Options();
@@ -196,33 +225,7 @@ public class Main {
 
             if(line.hasOption("create_mappings")) {
                 String template_path = line.getOptionValue("create_mappings");
-                List<Record> records = null;
-                try {
-                    records = ParseCSV.parseCreationCSV(template_path);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    System.exit(1);
-                }
-
-                String title_prefix = "Mapping_commons:";
-
-                for(Record record : records) {
-                    NewMappingArticle creator = new NewMappingArticle(
-                            bot,
-                            title_prefix + record.getName(),
-                            record.getCategory(),
-                            record.getUrl().split(" ")
-                    );
-
-                    if(creator.exists()) {
-                        logger.info("Article with title: " + creator.getTitle() + " already exists.");
-                        logger.info("Nothing to do.");
-                    } else {
-                        creator.save();
-                        logger.info("Created mapping under title: " + creator.getTitle());
-                    }
-                }
-
+                create_mappings(template_path);
                 System.exit(0);
             }
 
