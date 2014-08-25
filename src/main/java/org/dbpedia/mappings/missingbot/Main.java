@@ -4,6 +4,7 @@ package org.dbpedia.mappings.missingbot;
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
+import net.sourceforge.jwbf.core.contentRep.Article;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
 import org.apache.commons.cli.*;
@@ -13,6 +14,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import org.dbpedia.mappings.missingbot.create.NewMappingArticle;
 import org.dbpedia.mappings.missingbot.create.Record;
+import org.dbpedia.mappings.missingbot.create.airpedia.AirpediaPropertyMapping;
 import org.dbpedia.mappings.missingbot.rest.filter.CharsetResponseFilter;
 import org.dbpedia.mappings.missingbot.rest.filter.CorsResponseFilter;
 import org.dbpedia.mappings.missingbot.storage.Store;
@@ -36,6 +38,7 @@ import java.net.URI;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 
 public class Main {
@@ -129,6 +132,95 @@ public class Main {
         }
     }
 
+    public static void import_airpedia_classes(String classes_file, String language) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(classes_file));
+
+        String line;
+
+        String template = "{{TemplateMapping\n" +
+                "| mapToClass = %s\n" +
+                "| mappings = \n" +
+                "}}";
+
+
+        while((line = reader.readLine()) != null) {
+            String values[] = line.split("\t");
+            String name = values[0];
+            String cls = values[1];
+            String title = "Mapping_" + language + ":" + name;
+            String new_mapping = String.format(template, cls);
+            Article article = new Article(bot, title);
+
+            String txt = article.getText();
+
+            if(txt.length() != 0) {
+                logger.info("Article " + title + " already exists");
+                continue;
+            }
+
+            article.setText(new_mapping);
+            article.save();
+            logger.info("Article " + title + " created.");
+
+        }
+        reader.close();
+
+    }
+
+    public static void import_airpedia_properties(String classes_file, String language) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(classes_file));
+
+        Hashtable<String, AirpediaPropertyMapping> new_mappings = new Hashtable<String, AirpediaPropertyMapping>();
+
+        String line;
+
+        while((line = reader.readLine()) != null) {
+            String values[] = line.split("\t");
+            String lang = values[0];
+            String name = values[1];
+            String template_property = values[2];
+            String ontology_property = values[3];
+            String cap_name  = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            String title = "Mapping_" + lang + ":" + cap_name;
+
+            if(new_mappings.get(title) == null) {
+                AirpediaPropertyMapping map = new AirpediaPropertyMapping(bot,title);
+                map.addProperty(template_property, ontology_property);
+                new_mappings.put(title, map);
+            } else {
+                AirpediaPropertyMapping map = new_mappings.get(title);
+                map.addProperty(template_property, ontology_property);
+            }
+        }
+
+        reader.close();
+
+        for(String title : new_mappings.keySet()) {
+            AirpediaPropertyMapping article = new_mappings.get(title);
+
+            if(article.isEmpty()) {
+                logger.info("Article " + title + " does not exists");
+                continue;
+            }
+
+            if(!article.hasMapping()) {
+                logger.info("not found mappings in article " + title);
+                continue;
+            }
+
+            String property_mapping = article.buildPropertyMapping();
+
+            if(property_mapping.isEmpty()) {
+                logger.info("properties already exists for article: " + title + "\n" );
+                continue;
+            }
+
+            logger.info("Create properties for artcile: " + title + "\n" + property_mapping);
+            article.save();
+        }
+
+    }
+
     public static void list_missing(String language, String filter, boolean db) {
         AllMissingLabelTitles apt = new AllMissingLabelTitles(language, filter);
 
@@ -220,9 +312,14 @@ public class Main {
                           "print this message");
 
         options.addOption("ls",
-                "list_missing",
-                true,
-                "list missing labels for given 2-letter language.");
+                          "list_missing",
+                          false,
+                          "list missing labels for given language.");
+
+        options.addOption("l",
+                          "lang",
+                           true,
+                           "2-letter language code for missing mappings in wiki.");
 
         options.addOption("c",
                           "config",
@@ -250,6 +347,14 @@ public class Main {
         options.addOption( "start_rest",
                            false,
                            "start rest service for to request articles with missing labels.");
+
+        options.addOption( "import_template",
+                           true,
+                           "import template mappings from airpedia files. (required: lang parameter)");
+
+        options.addOption( "import_property",
+                           true,
+                           "import template properties from airpedia files.");
 
         return options;
     }
@@ -317,6 +422,19 @@ public class Main {
             System.exit(0);
         }
 
+
+        if(line.hasOption("import_property")) {
+            String property_file = line.getOptionValue("import_property");
+
+            try {
+                import_airpedia_properties(property_file, "lang");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            System.exit(0);
+        }
+
         String filter = "";
         if(line.hasOption("filter")) {
             List<String> filters = Arrays.asList("OntologyClass", "OntologyProperty", "Datatype");
@@ -328,7 +446,24 @@ public class Main {
             }
         }
 
-        String language = line.getOptionValue("list_missing");
+        if(!line.hasOption("lang")) {
+            System.err.println("language parameter is required.");
+            System.exit(1);
+        }
+
+        String language = line.getOptionValue("lang");
+
+        if(line.hasOption("import_template")) {
+            String class_file = line.getOptionValue("import_template");
+
+            try {
+                import_airpedia_classes(class_file, language);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            System.exit(0);
+        }
 
         if(line.hasOption("list_missing")) {
             list_missing(language, filter, line.hasOption("db"));
