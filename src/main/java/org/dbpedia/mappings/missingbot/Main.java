@@ -159,6 +159,7 @@ public class Main {
             }
 
             article.setText(new_mapping);
+            article.setEditSummary("import class mappings from airpedia for language: " + language + " with precision 0.9.");
             article.save();
             logger.info("Article " + title + " created.");
 
@@ -216,6 +217,7 @@ public class Main {
             }
 
             logger.info("Create properties for artcile: " + title + "\n" + property_mapping);
+            article.setEditSummary("import property mappings from airpedia for language: " + language);
             article.save();
         }
 
@@ -350,7 +352,10 @@ public class Main {
 
         options.addOption( "import_template",
                            true,
-                           "import template mappings from airpedia files. (required: lang parameter)");
+                           "import template mappings from airpedia files. \n" +
+                           "format: the first column contains the template/infobox, " +
+                           "while the second one contains the guessed class in the DBpedia Ontology.\n" +
+                           "(required: lang parameter)");
 
         options.addOption( "import_property",
                            true,
