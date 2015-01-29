@@ -145,10 +145,15 @@ public class Main {
 
         while((line = reader.readLine()) != null) {
             String values[] = line.split("\t");
-            String name = values[0];
-            String cls = values[1];
+            if(!values[0].equals(language)) {
+                continue;
+            }
+            String name = values[1];
+            String cls = values[3];
             String title = "Mapping_" + language + ":" + name;
+            System.out.println(title);
             String new_mapping = String.format(template, cls);
+            System.out.println(new_mapping);
             Article article = new Article(bot, title);
 
             String txt = article.getText();
